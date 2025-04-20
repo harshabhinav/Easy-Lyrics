@@ -25,6 +25,13 @@
       font-family: 'Poiret One', cursive;
     }
 
+    header div {
+      font-size: 16px;
+      font-style: italic;
+      margin-top: 5px;
+      color: #ccc;
+    }
+
     .content {
       padding: 40px 20px;
       background-color: rgba(0, 0, 0, 0.6);
@@ -80,7 +87,10 @@
   </style>
 </head>
 <body>
-  <header> EASY LYRICS 🎧</header>
+  <header>
+    EASY LYRICS 🎧
+    <div>"Music creates the mood, lyrics create the meaning"</div>
+  </header>
 
   <div class="content">
     <h2>Find Song Lyrics</h2>
@@ -174,7 +184,6 @@
           if (response.ok) {
             const result = await api.handler(response);
             if (result) {
-              // Show OVH result without label
               if (api.name === "OVH") {
                 lyricsDiv.innerHTML = `${result.replace(/\n/g, "<br>")}`;
               } else {
@@ -190,7 +199,7 @@
       }
 
       if (!found) {
-        lyricsDiv.innerHTML = "<strong>Sorry, this song's lyrics are coming soon...</strong>";
+        lyricsDiv.innerHTML = "<strong>Sorry,Failed to fetch lyrics!</strong>";
       }
     }
   </script>
