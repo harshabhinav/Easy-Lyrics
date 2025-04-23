@@ -94,10 +94,14 @@
 
   <div class="content">
     <h2>Find Song Lyrics</h2>
-    <input type="text" id="songName" placeholder="Enter Song Name">
-    <input type="text" id="artistName" placeholder="Enter Artist Name"><br>
-    <button onclick="fetchAllLyrics()">Search Lyrics</button>
+    <input type="text" id="songName" list="songSuggestions" placeholder="Enter Song Name">
+    <datalist id="songSuggestions"></datalist>
 
+    <input type="text" id="artistName" list="artistSuggestions" placeholder="Enter Artist Name">
+    <datalist id="artistSuggestions"></datalist>
+    
+    <br>
+    <button onclick="fetchAllLyrics()">Search Lyrics</button>
     <div id="lyrics" class="lyrics"></div>
   </div>
 
@@ -136,43 +140,6 @@
             const data = await res.json();
             return data.lyrics || null;
           }
-        },
-        {
-          name: "Musixmatch",
-          url: `https://api.musixmatch.com/ws/1.1/track.lyrics.get?q_track=${encodedSong}&q_artist=${encodedArtist}&apikey=YOUR_MUSIXMATCH_API_KEY`,
-          handler: async (res) => {
-            const data = await res.json();
-            return data.message?.body?.lyrics?.lyrics_body || null;
-          }
-        },
-        {
-          name: "Genius",
-          url: `https://api.genius.com/songs/YOUR_SONG_ID`,
-          headers: { Authorization: "Bearer YOUR_GENIUS_API_TOKEN" },
-          handler: async (res) => {
-            const data = await res.json();
-            return data.response?.song?.url ? `View on Genius: ${data.response.song.url}` : null;
-          }
-        },
-        {
-          name: "JioSaavn",
-          url: `https://api.jiosaavn.com/searchSongs?q=${encodedSong}`,
-          handler: async (res) => {
-            const data = await res.json();
-            if (data.songs?.results?.length > 0) {
-              const songData = data.songs.results[0];
-              return `Title: ${songData.title}\nArtist: ${songData.primary_artists}\nLink: ${songData.perma_url}`;
-            }
-            return null;
-          }
-        },
-        {
-          name: "Gaana",
-          url: `https://gaanaapi.com/lyrics/${encodedSong}`,
-          handler: async (res) => {
-            const data = await res.json();
-            return data.lyrics || null;
-          }
         }
       ];
 
@@ -180,15 +147,11 @@
 
       for (const api of apis) {
         try {
-          const response = await fetch(api.url, { headers: api.headers || {} });
+          const response = await fetch(api.url);
           if (response.ok) {
             const result = await api.handler(response);
             if (result) {
-              if (api.name === "OVH") {
-                lyricsDiv.innerHTML = `${result.replace(/\n/g, "<br>")}`;
-              } else {
-                lyricsDiv.innerHTML = `<strong>${api.name} Result:</strong><br><br>${result.replace(/\n/g, "<br>")}`;
-              }
+              lyricsDiv.innerHTML = `${result.replace(/\n/g, "<br>")}`;
               found = true;
               break;
             }
@@ -199,9 +162,52 @@
       }
 
       if (!found) {
-        lyricsDiv.innerHTML = "<strong>Sorry,Failed to fetch lyrics!</strong>";
+        lyricsDiv.innerHTML = "<strong>Sorry, Failed to fetch lyrics!</strong>";
       }
     }
+
+    
+    document.getElementById("songName").addEventListener("input", async function () {
+      const query = this.value.trim();
+      if (query.length < 2) return;
+
+      const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=5`);
+      const data = await response.json();
+      const datalist = document.getElementById("songSuggestions");
+
+      datalist.innerHTML = "";
+      const titles = new Set();
+      data.results.forEach(item => {
+        if (!titles.has(item.trackName)) {
+          titles.add(item.trackName);
+          const option = document.createElement("option");
+          option.value = item.trackName;
+          datalist.appendChild(option);
+        }
+      });
+    });
+
+    
+    document.getElementById("artistName").addEventListener("input", async function () {
+      const query = this.value.trim();
+      if (query.length < 2) return;
+
+      const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=musicArtist&limit=5`);
+      const data = await response.json();
+      const datalist = document.getElementById("artistSuggestions");
+
+      datalist.innerHTML = "";
+      const names = new Set();
+      data.results.forEach(item => {
+        if (!names.has(item.artistName)) {
+          names.add(item.artistName);
+          const option = document.createElement("option");
+          option.value = item.artistName;
+          datalist.appendChild(option);
+        }
+      });
+    });
   </script>
 </body>
 </html>
+
