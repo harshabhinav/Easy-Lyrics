@@ -7,10 +7,6 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poiret+One&family=Raleway:wght@400;700&display=swap');
 
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
       font-family: 'Raleway', sans-serif;
@@ -18,9 +14,6 @@
       background-size: cover;
       color: white;
       text-align: center;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
     }
 
     header {
@@ -40,24 +33,23 @@
     }
 
     .content {
-      flex: 1;
       padding: 40px 20px;
       background-color: rgba(0, 0, 0, 0.6);
+      min-height: 80vh;
     }
 
-    input[type="text"] {
+    input[type="search"] {
       padding: 12px;
-      margin: 8px 5px;
+      margin: 8px;
       border: none;
       border-radius: 8px;
-      width: 90%;
-      max-width: 300px;
+      width: 260px;
       font-size: 18px;
     }
 
     button {
       padding: 14px 28px;
-      margin: 20px auto;
+      margin: 20px;
       background-color: #ff5c8a;
       color: white;
       border: none;
@@ -66,7 +58,6 @@
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0px 5px 10px rgba(0,0,0,0.3);
-      display: block;
     }
 
     button:hover {
@@ -80,35 +71,18 @@
       border-radius: 15px;
       font-size: 18px;
       white-space: pre-line;
-      word-wrap: break-word;
     }
 
     .footer {
       background: rgba(0, 0, 0, 0.8);
       padding: 12px;
       font-size: 14px;
+      position: relative;
+      bottom: 0;
     }
 
     a {
       color: #00ffcc;
-    }
-
-    @media (max-width: 600px) {
-      header {
-        font-size: 28px;
-      }
-
-      .content {
-        padding: 20px 10px;
-      }
-
-      .lyrics {
-        font-size: 16px;
-      }
-
-      button {
-        width: 90%;
-      }
     }
   </style>
 </head>
@@ -120,12 +94,31 @@
 
   <div class="content">
     <h2>Find Song Lyrics</h2>
-    <input type="text" id="songName" list="songSuggestions" placeholder="Enter Song Name">
+    <input 
+      type="search" 
+      id="songName" 
+      list="songSuggestions" 
+      placeholder="Enter Song Name"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false"
+    >
     <datalist id="songSuggestions"></datalist>
 
-    <input type="text" id="artistName" list="artistSuggestions" placeholder="Enter Artist Name">
+    <input 
+      type="search" 
+      id="artistName" 
+      list="artistSuggestions" 
+      placeholder="Enter Artist Name"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false"
+    >
     <datalist id="artistSuggestions"></datalist>
     
+    <br>
     <button onclick="fetchAllLyrics()">Search Lyrics</button>
     <div id="lyrics" class="lyrics"></div>
   </div>
@@ -176,7 +169,7 @@
           if (response.ok) {
             const result = await api.handler(response);
             if (result) {
-              lyricsDiv.innerHTML = result.replace(/\n/g, "<br>");
+              lyricsDiv.innerHTML = `${result.replace(/\n/g, "<br>")}`;
               found = true;
               break;
             }
